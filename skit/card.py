@@ -1,10 +1,22 @@
 import logging
 from skit._types import Numeric
+from abc import ABC, abstractmethod
 
 
 logger = logging.getLogger(__file__)
 
-class Card:
+class CardManipulation(ABC):
+    @abstractmethod
+    def background(self, color: str): pass
+
+    @abstractmethod
+    def layout(self, name: str, x: Numeric, y: Numeric, width: Numeric, height: Numeric): pass
+
+    @abstractmethod
+    def text(self, text: str, layout: str): pass
+
+
+class Card(CardManipulation):
     def __init__(self):
         self.layouts = {}
 
