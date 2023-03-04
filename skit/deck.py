@@ -1,6 +1,7 @@
 from collections.abc import MutableSequence, Sequence
 import logging
 from pathlib import Path
+from typing import Self, Mapping
 import warnings
 from skit.card import Card, CardManipulation
 from skit._types import Real, Rect, Color, FreeTypeFont
@@ -35,6 +36,16 @@ class Deck(MutableSequence, CardManipulation):
         self._cards.insert(index, value)
     #endregion
 
+    #region Container convenience
+    def __add__(self, other: Self) -> Self:
+        if not issubclass(type(other), Deck):
+            raise NotImplemented
+
+        d = Deck(0)
+        d._cards = self._cards + other._cards
+        return d
+    #endregion
+
     #region Card manipulation
     def background(self, color: str):
         logger.debug(f"Deck.background({color})")
@@ -46,6 +57,16 @@ class Deck(MutableSequence, CardManipulation):
         for card in self._cards:
             card.layout(name, rect)
     
+    def layouts(self, names: Sequence[str], rects: Sequence[Rect]):
+        logger.debug(f"Deck.layouts(sequence of layouts)")
+        for card in self._cards:
+            card.layouts(names, rects)
+
+    def layouts_map(self, layouts: Mapping[str, Rect]):
+        logger.debug(f"Deck.layouts_map(map of name->layouts)")
+        for card in self._cards:
+            card.layouts_map(layouts)
+
     def text(self, text: str, layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
         logger.debug(f"Deck.text({text})")
         for card in self._cards:
