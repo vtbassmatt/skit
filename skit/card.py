@@ -1,7 +1,7 @@
 from enum import Enum
 import logging
 from PIL import Image, ImageDraw, ImageFont
-from skit._types import Numeric
+from skit._types import Rect
 from abc import ABC, abstractmethod
 
 
@@ -17,7 +17,7 @@ class CardManipulation(ABC):
     def background(self, color: str): pass
 
     @abstractmethod
-    def layout(self, name: str, x: Numeric, y: Numeric, width: Numeric, height: Numeric): pass
+    def layout(self, name: str, rect: Rect): pass
 
     @abstractmethod
     def text(self, text: str, layout: str): pass
@@ -41,13 +41,13 @@ class Card(CardManipulation):
         logger.debug(f"setting background to {color}")
         self._background = color
 
-    def layout(self, name: str, x: Numeric, y: Numeric, width: Numeric, height: Numeric):
+    def layout(self, name: str, rect: Rect):
         logger.debug(f"creating layout area {name}")
         self._layouts[name] = {
-            'x': x,
-            'y': y,
-            'width': width,
-            'height': height,
+            'x': rect.x,
+            'y': rect.y,
+            'width': rect.width,
+            'height': rect.height,
         }
     
     def text(self, text: str, layout: str):
