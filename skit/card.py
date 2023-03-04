@@ -9,6 +9,11 @@ from abc import ABC, abstractmethod
 logger = logging.getLogger(__file__)
 
 
+# some defaults for fallback
+DEFAULT_FONT = ImageFont.truetype('Helvetica', 16)
+DEFAULT_COLOR = 'black'
+DEFAULT_THICKNESS = 1
+
 class DrawCommand(Enum):
     TEXT = 'text'
     RECTANGLE = 'rect'
@@ -113,44 +118,49 @@ class Card(CardManipulation):
     def render_png(self, filename: str):
         logger.debug(f"rendering {filename}")
 
-        # some defaults for fallback
-        default_font = ImageFont.truetype('Helvetica', 16)
-        default_color = 'black'
-        default_thickness = 1
-
         with Image.new('RGBA', (self._width, self._height), self._background) as im:
             d = ImageDraw.Draw(im)
 
             for cmd in self._commands:
-                match cmd:
-                    case {'op': DrawCommand.TEXT, 'layout': layout, 'text': text, 'font': font, 'color': color}:
-                        logger.debug(f"rendering text '{text}' at {layout}")
-                        layout = self._layouts[layout]
-                        d.text(
-                            [layout['x'], layout['y']],
-                            text,
-                            fill=color if color else default_color,
-                            font=font if font else default_font,
-                        )
-                    case {'op': DrawCommand.RECTANGLE, 'layout': layout, 'color': color, 'thickness': thickness}:
-                        logger.debug(f"rendering rectangle on {layout}")
-                        layout = self._layouts[layout]
-                        d.rectangle(
-                            [
-                                layout['x'],
-                                layout['y'],
-                                layout['x'] + layout['width'],
-                                layout['y'] + layout['height'],
-                            ],
-                            outline=color if color else default_color,
-                            width=thickness if thickness else default_thickness,
-                        )
-                    case {'op': DrawCommand.IMAGE, 'layout': layout, 'image': image}:
-                        logger.debug(f"rendering image at {layout}")
-                        layout = self._layouts[layout]
-                        with Image.open(image) as art:
-                            im.alpha_composite(art, (layout['x'], layout['y']))
+                op = cmd.pop('op')
+                match op:
+                    case DrawCommand.TEXT:
+                        self._render_png_text(d, **cmd)
+                    case DrawCommand.RECTANGLE:
+                        self._render_png_rectangle(d, **cmd)
+                    case DrawCommand.IMAGE:
+                        self._render_png_image(im, **cmd)
                     case _:
                         raise ValueError(cmd)
 
             im.save(filename)
+
+    def _render_png_text(self, d, layout, text, color, font):
+        logger.debug(f"rendering text '{text}' at {layout}")
+        layout = self._layouts[layout]
+        d.text(
+            [layout['x'], layout['y']],
+            text,
+            fill=color if color else DEFAULT_COLOR,
+            font=font if font else DEFAULT_FONT,
+        )
+    
+    def _render_png_rectangle(self, d, layout, color, thickness):
+        logger.debug(f"rendering rectangle on {layout}")
+        layout = self._layouts[layout]
+        d.rectangle(
+            [
+                layout['x'],
+                layout['y'],
+                layout['x'] + layout['width'],
+                layout['y'] + layout['height'],
+            ],
+            outline=color if color else DEFAULT_COLOR,
+            width=thickness if thickness else DEFAULT_THICKNESS,
+        )
+
+    def _render_png_image(self, im, layout, image):
+        logger.debug(f"rendering image at {layout}")
+        layout = self._layouts[layout]
+        with Image.open(image) as art:
+            im.alpha_composite(art, (layout['x'], layout['y']))
