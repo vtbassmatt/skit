@@ -1,4 +1,5 @@
 from typing import NamedTuple
+from PIL.ImageFont import FreeTypeFont
 
 # type hint for numbers
 Numeric = int | float

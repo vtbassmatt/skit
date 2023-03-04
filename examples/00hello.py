@@ -12,7 +12,8 @@ deck.texts(['Hello', 'World'], layout='title')
 
 # create a copyright area and set a unique title for both cards
 deck.layout(name='copyright', rect=skit.Rect(x=0, y=100, width=100, height=16))
-deck.text('(C) 2023', layout='copyright')
+typewriter = skit.load_font('AmericanTypewriter', 12)
+deck.text('(C) 2023', layout='copyright', font=typewriter)
 
 # make the first card have an additional graphic
 deck.layout(name='art', rect=skit.Rect(x=0, y=20, width=100, height=100))

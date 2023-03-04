@@ -1,7 +1,7 @@
 from enum import Enum
 import logging
 from PIL import Image, ImageDraw, ImageFont
-from skit._types import Rect
+from skit._types import Rect, FreeTypeFont
 from abc import ABC, abstractmethod
 
 
@@ -20,7 +20,7 @@ class CardManipulation(ABC):
     def layout(self, name: str, rect: Rect): pass
 
     @abstractmethod
-    def text(self, text: str, layout: str): pass
+    def text(self, text: str, layout: str, font: FreeTypeFont | None = None): pass
 
     @abstractmethod
     def render_png(self, filename: str): pass
@@ -50,7 +50,7 @@ class Card(CardManipulation):
             'height': rect.height,
         }
     
-    def text(self, text: str, layout: str):
+    def text(self, text: str, layout: str, font: FreeTypeFont | None = None):
         assert type(text) is str
 
         if layout in self._layouts:
@@ -59,6 +59,7 @@ class Card(CardManipulation):
                 'op': DrawCommand.TEXT,
                 'layout': layout,
                 'text': text,
+                'font': font,
             })
         else:
             raise KeyError(f"missing layout '{layout}'")
@@ -75,10 +76,15 @@ class Card(CardManipulation):
 
             for cmd in self._commands:
                 match cmd:
-                    case {'op': DrawCommand.TEXT, 'layout': layout, 'text': text}:
+                    case {'op': DrawCommand.TEXT, 'layout': layout, 'text': text, 'font': font}:
                         logger.debug(f"rendering text '{text}' at {layout}")
                         layout = self._layouts[layout]
-                        d.text((layout['x'], layout['y']), text, fill=default_color, font=default_font)
+                        d.text(
+                            (layout['x'], layout['y']),
+                            text,
+                            fill=default_color,
+                            font=font if font else default_font,
+                        )
                     case _:
                         raise ValueError(cmd)
 
