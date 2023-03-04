@@ -1,6 +1,7 @@
 from collections.abc import MutableSequence, Sequence
 import logging
 from pathlib import Path
+from typing import Self
 import warnings
 from skit.card import Card, CardManipulation
 from skit._types import Real, Rect, Color, FreeTypeFont
@@ -33,6 +34,16 @@ class Deck(MutableSequence, CardManipulation):
     
     def insert(self, index, value):
         self._cards.insert(index, value)
+    #endregion
+
+    #region Container convenience
+    def __add__(self, other: Self) -> Self:
+        if not issubclass(type(other), Deck):
+            raise NotImplemented
+
+        d = Deck(0)
+        d._cards = self._cards + other._cards
+        return d
     #endregion
 
     #region Card manipulation

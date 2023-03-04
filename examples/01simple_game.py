@@ -54,5 +54,5 @@ deck_b.rectangle('border', '#cccccc', 2)
 deck_b.rectangle('art', '#888888')
 
 # create individual PNGs for cards
-deck_w.render_png('simple_{index}_w.png')
-deck_b.render_png('simple_{index}_b.png')
+deck = deck_w + deck_b
+deck.render_png('simple_{index}.png')
