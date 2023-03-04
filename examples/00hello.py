@@ -1,5 +1,9 @@
 import skit
 
+# load some fonts
+typewriter10 = skit.load_font('AmericanTypewriter', 10*3)
+typewriter16 = skit.load_font('AmericanTypewriter', 16*3)
+
 # create a 2-card deck
 deck = skit.Deck(2)
 
@@ -7,15 +11,18 @@ deck = skit.Deck(2)
 deck.background('white')
 
 # create a title area and set a unique title for both cards
-deck.layout(name='title', x=0, y=0, width=100, height=16)
-deck.texts(['Hello', 'World'], layout='title')
+deck.layout(name='title', rect=skit.Rect(x=10, y=0, width=730, height=50))
+deck.texts(['Hello', 'World'], layout='title', color=skit.Color('red'), font=typewriter16)
 
 # create a copyright area and set a unique title for both cards
-deck.layout(name='copyright', x=0, y=100, width=100, height=16)
-deck.text('(C) 2023', layout='copyright')
+deck.layout(name='copyright', rect=skit.Rect(x=10, y=1000, width=730, height=50))
+deck.text('(C) 2023', layout='copyright', font=typewriter10)
+
+# draw an art box
+deck.layout(name='art', rect=skit.Rect(x=30, y=90, width=690, height=500))
+deck.rectangle(layout='art')
 
 # make the first card have an additional graphic
-deck.layout(name='art', x=0, y=20, width=100, height=100)
 deck[0].png('graphic.png', layout='art')
 
 # create individual PNGs for cards

@@ -1,14 +1,18 @@
 from collections.abc import MutableSequence, Sequence
 import logging
+import warnings
 from skit.card import Card, CardManipulation
-from skit._types import Numeric
+from skit._types import Real, Rect, Color, FreeTypeFont
 
 
 logger = logging.getLogger(__file__)
 
 class Deck(MutableSequence, CardManipulation):
-    def __init__(self, card_count: 1):
-        self._cards: list[Card] = [Card()] * card_count
+    def __init__(self, card_count: int = 1, width: int | None = None, height: int | None = None):
+        opts = {}
+        if width: opts['width'] = width
+        if height: opts['height'] = height
+        self._cards: list[Card] = [Card(**opts) for _ in range(card_count)]
     
     #region MutableSequence
     def __getitem__(self, index):
@@ -36,15 +40,31 @@ class Deck(MutableSequence, CardManipulation):
         for card in self._cards:
             card.background(color)
     
-    def layout(self, name: str, x: Numeric, y: Numeric, width: Numeric, height: Numeric):
+    def layout(self, name: str, rect: Rect):
         logger.debug(f"Deck.layout({name}, ...)")
         for card in self._cards:
-            card.layout(name, x, y, width, height)
+            card.layout(name, rect)
     
-    def text(self, text: str, layout: str):
+    def text(self, text: str, layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
         logger.debug(f"Deck.text({text})")
         for card in self._cards:
-            card.text(text, layout)
+            card.text(text, layout, font, color)
+    
+    def rectangle(self, layout: str, color: Color | None = None, thickness: Real | None = None):
+        logger.debug(f"Deck.rect({layout})")
+        for card in self._cards:
+            card.rectangle(layout, color, thickness)
+
+    def render_png(self, filename: str):
+        logger.debug(f"Deck.render_png({filename})")
+
+        if '{index}' not in filename:
+            warnings.warn("'{index}' isn't in the filename, so images may overwrite one another")
+
+        for index, card in enumerate(self._cards):
+            card.render_png(filename.format_map({
+                'index': index,
+            }))
     #endregion
 
     #region Card sequence manipulation
@@ -53,10 +73,10 @@ class Deck(MutableSequence, CardManipulation):
         for card, color in zip(self._cards, colors):
             card.background(color)
 
-    def texts(self, texts: Sequence[str], layout: str):
+    def texts(self, texts: Sequence[str], layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
         logger.debug(f"Deck.texts(sequence of strings)")
         for card, text in zip(self._cards, texts):
-            card.text(text, layout)
+            card.text(text, layout, font, color)
     #endregion
 
     def __str__(self):
