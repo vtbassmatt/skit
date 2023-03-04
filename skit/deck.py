@@ -46,6 +46,11 @@ class Deck(MutableSequence, CardManipulation):
         for card in self._cards:
             card.layout(name, rect)
     
+    def layouts(self, names: Sequence[str], rects: Sequence[Rect]):
+        logger.debug(f"Deck.layouts(sequence of layouts)")
+        for card in self._cards:
+            card.layouts(names, rects)
+    
     def text(self, text: str, layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
         logger.debug(f"Deck.text({text})")
         for card in self._cards:

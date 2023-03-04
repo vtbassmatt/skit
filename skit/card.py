@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from enum import Enum
 import logging
 from pathlib import Path
@@ -26,6 +27,9 @@ class CardManipulation(ABC):
 
     @abstractmethod
     def layout(self, name: str, rect: Rect): pass
+
+    @abstractmethod
+    def layouts(self, names: Sequence[str], rects: Sequence[Rect]): pass
 
     @abstractmethod
     def text(
@@ -77,6 +81,12 @@ class Card(CardManipulation):
             'height': rect.height,
         }
     
+    def layouts(self, names: Sequence[str], rects: Sequence[Rect]):
+        assert len(names) == len(rects), "mismatched names/rects arguments"
+        
+        for name, rect in zip(names, rects):
+            self.layout(name, rect)
+
     def text(self, text: str, layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
         assert type(text) is str
 
