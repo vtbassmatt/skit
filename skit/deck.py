@@ -8,8 +8,11 @@ from skit._types import Rect, Color, FreeTypeFont
 logger = logging.getLogger(__file__)
 
 class Deck(MutableSequence, CardManipulation):
-    def __init__(self, card_count: 1):
-        self._cards: list[Card] = [Card() for _ in range(card_count)]
+    def __init__(self, card_count: int = 1, width: int | None = None, height: int | None = None):
+        opts = {}
+        if width: opts['width'] = width
+        if height: opts['height'] = height
+        self._cards: list[Card] = [Card(**opts) for _ in range(card_count)]
     
     #region MutableSequence
     def __getitem__(self, index):

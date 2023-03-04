@@ -32,10 +32,9 @@ class CardManipulation(ABC):
 
 
 class Card(CardManipulation):
-    def __init__(self, width: int = 750, height: int = 1050, dpi: int = 300):
+    def __init__(self, width: int = 750, height: int = 1050):
         self._width = width
         self._height = height
-        self._dpi = dpi
         self._layouts = {}
         self._background = '#ffffff00'
         self._commands = []
