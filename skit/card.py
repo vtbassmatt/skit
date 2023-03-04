@@ -1,7 +1,7 @@
 from enum import Enum
 import logging
 from PIL import Image, ImageDraw, ImageFont
-from skit._types import Rect, Color, FreeTypeFont
+from skit._types import Numeric, Rect, Color, FreeTypeFont
 from abc import ABC, abstractmethod
 
 
@@ -10,6 +10,7 @@ logger = logging.getLogger(__file__)
 
 class DrawCommand(Enum):
     TEXT = 'text'
+    RECTANGLE = 'rect'
 
 
 class CardManipulation(ABC):
@@ -25,6 +26,14 @@ class CardManipulation(ABC):
         layout: str,
         font: FreeTypeFont | None = None,
         color: Color | None = None,
+    ): pass
+
+    @abstractmethod
+    def rectangle(
+        self,
+        layout: str,
+        color: Color | None = None,
+        thickness: Numeric | None = None,
     ): pass
 
     @abstractmethod
@@ -69,12 +78,25 @@ class Card(CardManipulation):
         else:
             raise KeyError(f"missing layout '{layout}'")
 
+    def rectangle(self, layout: str, color: Color | None = None, thickness: Numeric | None = None):
+        if layout in self._layouts:
+            logger.debug(f"adding rectangle for {layout}")
+            self._commands.append({
+                'op': DrawCommand.RECTANGLE,
+                'layout': layout,
+                'color': color,
+                'thickness': thickness,
+            })
+        else:
+            raise KeyError(f"missing layout '{layout}'")
+
     def render_png(self, filename: str):
         logger.debug(f"rendering {filename}")
 
         # some defaults for fallback
         default_font = ImageFont.truetype('Helvetica', 16)
         default_color = 'black'
+        default_thickness = 1
 
         with Image.new('RGBA', (self._width, self._height), self._background) as im:
             d = ImageDraw.Draw(im)
@@ -85,10 +107,23 @@ class Card(CardManipulation):
                         logger.debug(f"rendering text '{text}' at {layout}")
                         layout = self._layouts[layout]
                         d.text(
-                            (layout['x'], layout['y']),
+                            [layout['x'], layout['y']],
                             text,
                             fill=color if color else default_color,
                             font=font if font else default_font,
+                        )
+                    case {'op': DrawCommand.RECTANGLE, 'layout': layout, 'color': color, 'thickness': thickness}:
+                        logger.debug(f"rendering rectangle on {layout}")
+                        layout = self._layouts[layout]
+                        d.rectangle(
+                            [
+                                layout['x'],
+                                layout['y'],
+                                layout['x'] + layout['width'],
+                                layout['y'] + layout['height'],
+                            ],
+                            outline=color if color else default_color,
+                            width=thickness if thickness else default_thickness,
                         )
                     case _:
                         raise ValueError(cmd)

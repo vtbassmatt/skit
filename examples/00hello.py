@@ -18,8 +18,11 @@ deck.texts(['Hello', 'World'], layout='title', color=skit.Color('red'), font=typ
 deck.layout(name='copyright', rect=skit.Rect(x=10, y=1000, width=730, height=50))
 deck.text('(C) 2023', layout='copyright', font=typewriter10)
 
+# draw an art box
+deck.layout(name='art', rect=skit.Rect(x=30, y=90, width=690, height=500))
+deck.rectangle(layout='art')
+
 # make the first card have an additional graphic
-deck.layout(name='art', rect=skit.Rect(x=0, y=20, width=100, height=100))
 deck[0].png('graphic.png', layout='art')
 
 # create individual PNGs for cards

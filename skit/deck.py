@@ -2,7 +2,7 @@ from collections.abc import MutableSequence, Sequence
 import logging
 import warnings
 from skit.card import Card, CardManipulation
-from skit._types import Rect, Color, FreeTypeFont
+from skit._types import Numeric, Rect, Color, FreeTypeFont
 
 
 logger = logging.getLogger(__file__)
@@ -50,6 +50,11 @@ class Deck(MutableSequence, CardManipulation):
         for card in self._cards:
             card.text(text, layout, font, color)
     
+    def rectangle(self, layout: str, color: Color | None = None, thickness: Numeric | None = None):
+        logger.debug(f"Deck.rect({layout})")
+        for card in self._cards:
+            card.rectangle(layout, color, thickness)
+
     def render_png(self, filename: str):
         logger.debug(f"Deck.render_png({filename})")
 
