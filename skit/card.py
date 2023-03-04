@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from enum import Enum
 import logging
 from pathlib import Path
+from typing import Mapping
 from PIL import Image, ImageDraw, ImageFont
 from skit._types import Real, Rect, Color, FreeTypeFont
 from abc import ABC, abstractmethod
@@ -30,6 +31,9 @@ class CardManipulation(ABC):
 
     @abstractmethod
     def layouts(self, names: Sequence[str], rects: Sequence[Rect]): pass
+
+    @abstractmethod
+    def layouts_map(self, layouts: Mapping[str, Rect]): pass
 
     @abstractmethod
     def text(
@@ -85,6 +89,10 @@ class Card(CardManipulation):
         assert len(names) == len(rects), "mismatched names/rects arguments"
         
         for name, rect in zip(names, rects):
+            self.layout(name, rect)
+
+    def layouts_map(self, layouts: Mapping[str, Rect]):
+        for name, rect in layouts.items():
             self.layout(name, rect)
 
     def text(self, text: str, layout: str, font: FreeTypeFont | None = None, color: Color | None = None):

@@ -18,7 +18,7 @@ typewriter16 = skit.load_font('AmericanTypewriter', 16*2)
 
 # load the layout
 with open(BASE_DIR + '/assets/01layout.json') as json_in:
-    layouts = json.load(json_in)
+    layouts = json.load(json_in, object_hook=skit.json_layout_hook)
 
 # load pieces
 pieces = []
@@ -38,7 +38,7 @@ piece_count = len(total_pieces)
 deck_w = skit.Deck(piece_count, 300, 300)
 deck_w.background('#cccccc')
 
-deck_w.layouts(layouts.keys(), [skit.Rect(**l) for l in layouts.values()])
+deck_w.layouts_map(layouts)
 deck_w.texts(['White ' + p[0] for p in total_pieces], 'name', typewriter16)
 deck_w.texts([p[1] for p in total_pieces], 'text', typewriter10)
 deck_w.rectangle('border', '#444444', 2)
@@ -47,7 +47,7 @@ deck_w.rectangle('art', '#888888')
 deck_b = skit.Deck(piece_count, 300, 300)
 deck_b.background('#444444')
 
-deck_b.layouts(layouts.keys(), [skit.Rect(**l) for l in layouts.values()])
+deck_b.layouts_map(layouts)
 deck_b.texts(['Black ' + p[0] for p in total_pieces], 'name', typewriter16, 'white')
 deck_b.texts([p[1] for p in total_pieces], 'text', typewriter10, 'white')
 deck_b.rectangle('border', '#cccccc', 2)
