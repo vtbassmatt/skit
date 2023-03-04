@@ -1,0 +1,7 @@
+Name,Number,Text
+Pawn,8,Always marching forward
+Rook,2,Following their inner compass
+Knight,2,Hooking around the corner
+Bishop,2,Trying another angle
+Queen,1,Moving any which way
+King,1,Evading capture
