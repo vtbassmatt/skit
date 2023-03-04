@@ -1,5 +1,6 @@
 from enum import Enum
 import logging
+from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from skit._types import Real, Rect, Color, FreeTypeFont
 from abc import ABC, abstractmethod
@@ -11,6 +12,7 @@ logger = logging.getLogger(__file__)
 class DrawCommand(Enum):
     TEXT = 'text'
     RECTANGLE = 'rect'
+    IMAGE = 'image'
 
 
 class CardManipulation(ABC):
@@ -34,6 +36,13 @@ class CardManipulation(ABC):
         layout: str,
         color: Color | None = None,
         thickness: Real | None = None,
+    ): pass
+
+    @abstractmethod
+    def image(
+        self,
+        image: Path,
+        layout: str,
     ): pass
 
     @abstractmethod
@@ -90,6 +99,17 @@ class Card(CardManipulation):
         else:
             raise KeyError(f"missing layout '{layout}'")
 
+    def image(self, image: Path, layout: str):
+        if layout in self._layouts:
+            logger.debug(f"adding image for {layout}")
+            self._commands.append({
+                'op': DrawCommand.IMAGE,
+                'layout': layout,
+                'image': image,
+            })
+        else:
+            raise KeyError(f"missing layout '{layout}'")
+
     def render_png(self, filename: str):
         logger.debug(f"rendering {filename}")
 
@@ -125,6 +145,11 @@ class Card(CardManipulation):
                             outline=color if color else default_color,
                             width=thickness if thickness else default_thickness,
                         )
+                    case {'op': DrawCommand.IMAGE, 'layout': layout, 'image': image}:
+                        logger.debug(f"rendering image at {layout}")
+                        layout = self._layouts[layout]
+                        with Image.open(image) as art:
+                            im.alpha_composite(art, (layout['x'], layout['y']))
                     case _:
                         raise ValueError(cmd)
 

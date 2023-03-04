@@ -1,5 +1,6 @@
 from collections.abc import MutableSequence, Sequence
 import logging
+from pathlib import Path
 import warnings
 from skit.card import Card, CardManipulation
 from skit._types import Real, Rect, Color, FreeTypeFont
@@ -55,6 +56,11 @@ class Deck(MutableSequence, CardManipulation):
         for card in self._cards:
             card.rectangle(layout, color, thickness)
 
+    def image(self, image: Path, layout: str):
+        logger.debug(f"Deck.image({image})")
+        for card in self._cards:
+            card.image(layout, image, layout)
+
     def render_png(self, filename: str):
         logger.debug(f"Deck.render_png({filename})")
 
@@ -77,6 +83,11 @@ class Deck(MutableSequence, CardManipulation):
         logger.debug(f"Deck.texts(sequence of strings)")
         for card, text in zip(self._cards, texts):
             card.text(text, layout, font, color)
+
+    def images(self, images: Sequence[Path], layout: str):
+        logger.debug(f"Deck.images(sequence of images)")
+        for card, image in zip(self._cards, images):
+            card.image(layout, image, layout)
     #endregion
 
     def __str__(self):
