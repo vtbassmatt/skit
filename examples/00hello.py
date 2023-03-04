@@ -1,4 +1,7 @@
+import os.path
 import skit
+
+BASE_DIR = os.path.dirname(__file__)
 
 # load some fonts
 typewriter10 = skit.load_font('AmericanTypewriter', 10*3)
@@ -23,7 +26,7 @@ deck.layout(name='art', rect=skit.Rect(x=30, y=90, width=690, height=500))
 deck.rectangle(layout='art')
 
 # make the first card have an additional graphic
-deck[0].png('graphic.png', layout='art')
+deck[0].image(BASE_DIR + '/assets/apple.png', layout='art')
 
 # create individual PNGs for cards
 deck.render_png('hello_{index}.png')
