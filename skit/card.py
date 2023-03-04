@@ -1,7 +1,7 @@
 from enum import Enum
 import logging
 from PIL import Image, ImageDraw, ImageFont
-from skit._types import Rect, FreeTypeFont
+from skit._types import Rect, Color, FreeTypeFont
 from abc import ABC, abstractmethod
 
 
@@ -20,7 +20,12 @@ class CardManipulation(ABC):
     def layout(self, name: str, rect: Rect): pass
 
     @abstractmethod
-    def text(self, text: str, layout: str, font: FreeTypeFont | None = None): pass
+    def text(
+        self, text: str,
+        layout: str,
+        font: FreeTypeFont | None = None,
+        color: Color | None = None,
+    ): pass
 
     @abstractmethod
     def render_png(self, filename: str): pass
@@ -50,7 +55,7 @@ class Card(CardManipulation):
             'height': rect.height,
         }
     
-    def text(self, text: str, layout: str, font: FreeTypeFont | None = None):
+    def text(self, text: str, layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
         assert type(text) is str
 
         if layout in self._layouts:
@@ -60,6 +65,7 @@ class Card(CardManipulation):
                 'layout': layout,
                 'text': text,
                 'font': font,
+                'color': color,
             })
         else:
             raise KeyError(f"missing layout '{layout}'")
@@ -76,13 +82,13 @@ class Card(CardManipulation):
 
             for cmd in self._commands:
                 match cmd:
-                    case {'op': DrawCommand.TEXT, 'layout': layout, 'text': text, 'font': font}:
+                    case {'op': DrawCommand.TEXT, 'layout': layout, 'text': text, 'font': font, 'color': color}:
                         logger.debug(f"rendering text '{text}' at {layout}")
                         layout = self._layouts[layout]
                         d.text(
                             (layout['x'], layout['y']),
                             text,
-                            fill=default_color,
+                            fill=color if color else default_color,
                             font=font if font else default_font,
                         )
                     case _:
