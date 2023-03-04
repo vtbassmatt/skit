@@ -1,7 +1,7 @@
 from enum import Enum
 import logging
 from PIL import Image, ImageDraw, ImageFont
-from skit._types import Numeric, Rect, Color, FreeTypeFont
+from skit._types import Real, Rect, Color, FreeTypeFont
 from abc import ABC, abstractmethod
 
 
@@ -33,7 +33,7 @@ class CardManipulation(ABC):
         self,
         layout: str,
         color: Color | None = None,
-        thickness: Numeric | None = None,
+        thickness: Real | None = None,
     ): pass
 
     @abstractmethod
@@ -78,7 +78,7 @@ class Card(CardManipulation):
         else:
             raise KeyError(f"missing layout '{layout}'")
 
-    def rectangle(self, layout: str, color: Color | None = None, thickness: Numeric | None = None):
+    def rectangle(self, layout: str, color: Color | None = None, thickness: Real | None = None):
         if layout in self._layouts:
             logger.debug(f"adding rectangle for {layout}")
             self._commands.append({
