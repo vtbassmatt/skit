@@ -1,5 +1,6 @@
 from collections.abc import MutableSequence, Sequence
 import logging
+import warnings
 from skit.card import Card, CardManipulation
 from skit._types import Numeric
 
@@ -8,7 +9,7 @@ logger = logging.getLogger(__file__)
 
 class Deck(MutableSequence, CardManipulation):
     def __init__(self, card_count: 1):
-        self._cards: list[Card] = [Card()] * card_count
+        self._cards: list[Card] = [Card() for _ in range(card_count)]
     
     #region MutableSequence
     def __getitem__(self, index):
@@ -45,6 +46,17 @@ class Deck(MutableSequence, CardManipulation):
         logger.debug(f"Deck.text({text})")
         for card in self._cards:
             card.text(text, layout)
+    
+    def render_png(self, filename: str):
+        logger.debug(f"Deck.render_png({filename})")
+
+        if '{index}' not in filename:
+            warnings.warn("'{index}' isn't in the filename, so images may overwrite one another")
+
+        for index, card in enumerate(self._cards):
+            card.render_png(filename.format_map({
+                'index': index,
+            }))
     #endregion
 
     #region Card sequence manipulation
