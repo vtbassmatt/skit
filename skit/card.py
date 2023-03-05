@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import Mapping
 from PIL import Image, ImageDraw, ImageFont
-from skit._types import Real, Rect, Color, FreeTypeFont
+from skit._types import Real, LayoutDef, Color, FreeTypeFont, Alignment
 from abc import ABC, abstractmethod
 
 
@@ -12,11 +12,11 @@ logger = logging.getLogger(__file__)
 
 
 # some defaults for fallback
-DEFAULT_FONT = ImageFont.truetype('Helvetica', 16)
-DEFAULT_COLOR = 'black'
-DEFAULT_THICKNESS = 1
+_DEFAULT_FONT = ImageFont.truetype('Helvetica', 16)
+_DEFAULT_COLOR = 'black'
+_DEFAULT_THICKNESS = 1
 
-class DrawCommand(Enum):
+class _DrawCommand(Enum):
     TEXT = 'text'
     RECTANGLE = 'rect'
     IMAGE = 'image'
@@ -27,28 +27,28 @@ class CardManipulation(ABC):
     def background(self, color: str): pass
 
     @abstractmethod
-    def layout(self, name: str, rect: Rect): pass
+    def layout(self, name: str, layoutdef: LayoutDef): pass
 
     @abstractmethod
-    def layouts(self, names: Sequence[str], rects: Sequence[Rect]): pass
+    def layouts(self, names: Sequence[str], layoutdefs: Sequence[LayoutDef]): pass
 
     @abstractmethod
-    def layouts_map(self, layouts: Mapping[str, Rect]): pass
+    def layouts_map(self, layouts: Mapping[str, LayoutDef]): pass
 
     @abstractmethod
     def text(
         self, text: str,
         layout: str,
-        font: FreeTypeFont | None = None,
-        color: Color | None = None,
+        font: FreeTypeFont | None,
+        color: Color | None,
     ): pass
 
     @abstractmethod
     def rectangle(
         self,
         layout: str,
-        color: Color | None = None,
-        thickness: Real | None = None,
+        color: Color | None,
+        thickness: Real | None,
     ): pass
 
     @abstractmethod
@@ -78,27 +78,32 @@ class Card(CardManipulation):
         logger.debug(f"setting background to {color}")
         self._background = color
 
-    def layout(self, name: str, rect: Rect):
+    def layout(self, name: str, layoutdef: LayoutDef):
         "Create a new layout for this card."
+        assert Alignment(layoutdef.h_align)
+        assert Alignment(layoutdef.v_align)
+
         logger.debug(f"creating layout area {name}")
         self._layouts[name] = {
-            'x': rect.x,
-            'y': rect.y,
-            'width': rect.width,
-            'height': rect.height,
+            'x': layoutdef.x,
+            'y': layoutdef.y,
+            'width': layoutdef.width,
+            'height': layoutdef.height,
+            'h_align': layoutdef.h_align,
+            'v_align': layoutdef.v_align,
         }
     
-    def layouts(self, names: Sequence[str], rects: Sequence[Rect]):
+    def layouts(self, names: Sequence[str], layoutdefs: Sequence[LayoutDef]):
         "Create multiple layouts for this card."
-        assert len(names) == len(rects), "mismatched names/rects arguments"
+        assert len(names) == len(layoutdefs), "mismatched names/layoutdefs arguments"
         
-        for name, rect in zip(names, rects):
-            self.layout(name, rect)
+        for name, layoutdef in zip(names, layoutdefs):
+            self.layout(name, layoutdef)
 
-    def layouts_map(self, layouts: Mapping[str, Rect]):
+    def layouts_map(self, layouts: Mapping[str, LayoutDef]):
         "Create multiple layouts from a dictionary."
-        for name, rect in layouts.items():
-            self.layout(name, rect)
+        for name, layoutdef in layouts.items():
+            self.layout(name, layoutdef)
 
     def text(self, text: str, layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
         "Add text to this card."
@@ -107,7 +112,7 @@ class Card(CardManipulation):
         if layout in self._layouts:
             logger.debug(f"adding '{text}' in {layout}")
             self._commands.append({
-                'op': DrawCommand.TEXT,
+                'op': _DrawCommand.TEXT,
                 'layout': layout,
                 'text': text,
                 'font': font,
@@ -121,7 +126,7 @@ class Card(CardManipulation):
         if layout in self._layouts:
             logger.debug(f"adding rectangle for {layout}")
             self._commands.append({
-                'op': DrawCommand.RECTANGLE,
+                'op': _DrawCommand.RECTANGLE,
                 'layout': layout,
                 'color': color,
                 'thickness': thickness,
@@ -134,7 +139,7 @@ class Card(CardManipulation):
         if layout in self._layouts:
             logger.debug(f"adding image for {layout}")
             self._commands.append({
-                'op': DrawCommand.IMAGE,
+                'op': _DrawCommand.IMAGE,
                 'layout': layout,
                 'image': image,
             })
@@ -151,11 +156,11 @@ class Card(CardManipulation):
             for cmd in self._commands:
                 op = cmd.pop('op')
                 match op:
-                    case DrawCommand.TEXT:
+                    case _DrawCommand.TEXT:
                         self._render_png_text(d, **cmd)
-                    case DrawCommand.RECTANGLE:
+                    case _DrawCommand.RECTANGLE:
                         self._render_png_rectangle(d, **cmd)
-                    case DrawCommand.IMAGE:
+                    case _DrawCommand.IMAGE:
                         self._render_png_image(im, **cmd)
                     case _:
                         raise ValueError(cmd)
@@ -168,8 +173,8 @@ class Card(CardManipulation):
         d.text(
             [layout['x'], layout['y']],
             text,
-            fill=color if color else DEFAULT_COLOR,
-            font=font if font else DEFAULT_FONT,
+            fill=color if color else _DEFAULT_COLOR,
+            font=font if font else _DEFAULT_FONT,
         )
     
     def _render_png_rectangle(self, d, layout, color, thickness):
@@ -182,8 +187,8 @@ class Card(CardManipulation):
                 layout['x'] + layout['width'],
                 layout['y'] + layout['height'],
             ],
-            outline=color if color else DEFAULT_COLOR,
-            width=thickness if thickness else DEFAULT_THICKNESS,
+            outline=color if color else _DEFAULT_COLOR,
+            width=thickness if thickness else _DEFAULT_THICKNESS,
         )
 
     def _render_png_image(self, im, layout, image):

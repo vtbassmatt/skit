@@ -9,7 +9,9 @@
     "x": 50,
     "y": 50,
     "width": 200,
-    "height": 200
+    "height": 200,
+    "v_align": "middle",
+    "h_align": "middle"
   },
   "text": {
     "x": 12,
