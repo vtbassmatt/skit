@@ -1,7 +1,7 @@
 from collections.abc import MutableSequence, Sequence
 import logging
 from pathlib import Path
-from typing import Self, Mapping
+from typing import Iterator, Self, Mapping
 import warnings
 from skit.card import Card, CardManipulation
 from skit._types import Real, Rect, Color, FreeTypeFont
@@ -10,6 +10,7 @@ from skit._types import Real, Rect, Color, FreeTypeFont
 logger = logging.getLogger(__file__)
 
 class Deck(MutableSequence, CardManipulation):
+    "A deck of one or more cards."
     def __init__(self, card_count: int = 1, width: int | None = None, height: int | None = None):
         opts = {}
         if width: opts['width'] = width
@@ -17,22 +18,22 @@ class Deck(MutableSequence, CardManipulation):
         self._cards: list[Card] = [Card(**opts) for _ in range(card_count)]
     
     #region MutableSequence
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> Card:
         return self._cards[index]
     
-    def __delitem__(self, index):
+    def __delitem__(self, index) -> None:
         del self._cards[index]
     
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Card]:
         return self._cards.__iter__()
 
     def __len__(self) -> int:
         return len(self._cards)
     
-    def __setitem__(self, index, value):
+    def __setitem__(self, index, value) -> None:
         self._cards[index] = value
     
-    def insert(self, index, value):
+    def insert(self, index, value) -> None:
         self._cards.insert(index, value)
     #endregion
 
@@ -48,41 +49,54 @@ class Deck(MutableSequence, CardManipulation):
 
     #region Card manipulation
     def background(self, color: str):
+        "Set the background color for all cards in this deck."
         logger.debug(f"Deck.background({color})")
         for card in self._cards:
             card.background(color)
     
     def layout(self, name: str, rect: Rect):
+        "Add a layout to every card in this deck."
         logger.debug(f"Deck.layout({name}, ...)")
         for card in self._cards:
             card.layout(name, rect)
     
     def layouts(self, names: Sequence[str], rects: Sequence[Rect]):
+        "Add multiple layouts to every card in this deck."
         logger.debug(f"Deck.layouts(sequence of layouts)")
         for card in self._cards:
             card.layouts(names, rects)
 
     def layouts_map(self, layouts: Mapping[str, Rect]):
+        "Add multiple layouts from a dictionary to every card in this deck."
         logger.debug(f"Deck.layouts_map(map of name->layouts)")
         for card in self._cards:
             card.layouts_map(layouts)
 
     def text(self, text: str, layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
+        "Add a text string to every card in this deck."
         logger.debug(f"Deck.text({text})")
         for card in self._cards:
             card.text(text, layout, font, color)
     
     def rectangle(self, layout: str, color: Color | None = None, thickness: Real | None = None):
+        "Draw a rectangle on every card in this deck."
         logger.debug(f"Deck.rect({layout})")
         for card in self._cards:
             card.rectangle(layout, color, thickness)
 
     def image(self, image: Path, layout: str):
+        "Draw an image on every card in this deck."
         logger.debug(f"Deck.image({image})")
         for card in self._cards:
             card.image(layout, image, layout)
 
     def render_png(self, filename: str):
+        """
+        Render every card in this deck as a PNG.
+
+        You may use `{index}` as part of the filename to ensure each card gets
+        a unique name.
+        """
         logger.debug(f"Deck.render_png({filename})")
 
         if '{index}' not in filename:
@@ -96,16 +110,19 @@ class Deck(MutableSequence, CardManipulation):
 
     #region Card sequence manipulation
     def backgrounds(self, colors: Sequence[str]):
+        "Add (potentially different) backgrounds to each card in this deck."
         logger.debug(f"Deck.backgrounds(sequence of colors)")
         for card, color in zip(self._cards, colors):
             card.background(color)
 
     def texts(self, texts: Sequence[str], layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
+        "Add (potentially different) text strings to each card in this deck."
         logger.debug(f"Deck.texts(sequence of strings)")
         for card, text in zip(self._cards, texts):
             card.text(text, layout, font, color)
 
     def images(self, images: Sequence[Path], layout: str):
+        "Draw (potentially different) external images on each card in this deck."
         logger.debug(f"Deck.images(sequence of images)")
         for card, image in zip(self._cards, images):
             card.image(layout, image, layout)

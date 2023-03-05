@@ -3,6 +3,7 @@ from numbers import Real
 from PIL.ImageFont import FreeTypeFont
 
 class Rect(NamedTuple):
+    "A rectangle, the basic data structure used throughout Skit."
     x: Real
     y: Real
     width: Real

@@ -63,6 +63,7 @@ class CardManipulation(ABC):
 
 
 class Card(CardManipulation):
+    "A single card."
     def __init__(self, width: int = 750, height: int = 1050):
         self._width = width
         self._height = height
@@ -71,12 +72,14 @@ class Card(CardManipulation):
         self._commands = []
 
     def background(self, color: str):
+        "Set the background color for this card."
         assert type(color) is str
 
         logger.debug(f"setting background to {color}")
         self._background = color
 
     def layout(self, name: str, rect: Rect):
+        "Create a new layout for this card."
         logger.debug(f"creating layout area {name}")
         self._layouts[name] = {
             'x': rect.x,
@@ -86,16 +89,19 @@ class Card(CardManipulation):
         }
     
     def layouts(self, names: Sequence[str], rects: Sequence[Rect]):
+        "Create multiple layouts for this card."
         assert len(names) == len(rects), "mismatched names/rects arguments"
         
         for name, rect in zip(names, rects):
             self.layout(name, rect)
 
     def layouts_map(self, layouts: Mapping[str, Rect]):
+        "Create multiple layouts from a dictionary."
         for name, rect in layouts.items():
             self.layout(name, rect)
 
     def text(self, text: str, layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
+        "Add text to this card."
         assert type(text) is str
 
         if layout in self._layouts:
@@ -111,6 +117,7 @@ class Card(CardManipulation):
             raise KeyError(f"missing layout '{layout}'")
 
     def rectangle(self, layout: str, color: Color | None = None, thickness: Real | None = None):
+        "Draw a rectangle on this card."
         if layout in self._layouts:
             logger.debug(f"adding rectangle for {layout}")
             self._commands.append({
@@ -123,6 +130,7 @@ class Card(CardManipulation):
             raise KeyError(f"missing layout '{layout}'")
 
     def image(self, image: Path, layout: str):
+        "Draw an external image on this card."
         if layout in self._layouts:
             logger.debug(f"adding image for {layout}")
             self._commands.append({
@@ -134,6 +142,7 @@ class Card(CardManipulation):
             raise KeyError(f"missing layout '{layout}'")
 
     def render_png(self, filename: str):
+        "Render this card as a PNG."
         logger.debug(f"rendering {filename}")
 
         with Image.new('RGBA', (self._width, self._height), self._background) as im:
