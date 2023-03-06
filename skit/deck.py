@@ -88,7 +88,7 @@ class Deck(MutableSequence, CardManipulation):
         "Draw an image on every card in this deck."
         logger.debug(f"Deck.image({image})")
         for card in self._cards:
-            card.image(layout, image, layout)
+            card.image(image, layout)
 
     def render_png(self, filename: str):
         """

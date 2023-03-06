@@ -195,4 +195,24 @@ class Card(CardManipulation):
         logger.debug(f"rendering image at {layout}")
         layout = self._layouts[layout]
         with Image.open(image) as art:
-            im.alpha_composite(art, (layout['x'], layout['y']))
+            match layout['h_align']:
+                case Alignment.BEGIN:
+                    left = layout['x']
+                case Alignment.MIDDLE:
+                    left = layout['x'] + (layout['width'] - art.width) // 2
+                case Alignment.END:
+                    left = layout['x'] + layout['width'] - art.width
+                case _:
+                    raise ValueError(f"h_align value '{layout['h_align']}' unrecognized")
+
+            match layout['v_align']:
+                case Alignment.BEGIN:
+                    top = layout['y']
+                case Alignment.MIDDLE:
+                    top = layout['y'] + (layout['height'] - art.height) // 2
+                case Alignment.END:
+                    top = layout['y'] + layout['height'] - art.height
+                case _:
+                    raise ValueError(f"v_align value '{layout['v_align']}' unrecognized")
+
+            im.alpha_composite(art, (left, top))

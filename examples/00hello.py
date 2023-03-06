@@ -22,7 +22,7 @@ deck.layout(name='copyright', layoutdef=skit.LayoutDef(x=10, y=1000, width=730, 
 deck.text('(C) 2023', layout='copyright', font=typewriter10)
 
 # draw an art box
-deck.layout(name='art', layoutdef=skit.LayoutDef(x=30, y=90, width=690, height=500))
+deck.layout(name='art', layoutdef=skit.LayoutDef(x=30, y=90, width=690, height=500, h_align=skit.Alignment.MIDDLE, v_align=skit.Alignment.MIDDLE))
 deck.rectangle(layout='art')
 
 # make the first card have an additional graphic
