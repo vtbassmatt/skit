@@ -170,11 +170,39 @@ class Card(CardManipulation):
     def _render_png_text(self, d, layout, text, color, font):
         logger.debug(f"rendering text '{text}' at {layout}")
         layout = self._layouts[layout]
+
+        match layout['h_align']:
+            case Alignment.BEGIN:
+                anchor_h = 'l'
+                x = layout['x']
+            case Alignment.MIDDLE:
+                anchor_h = 'm'
+                x = layout['x'] + (layout['width'] // 2)
+            case Alignment.END:
+                anchor_h = 'r'
+                x = layout['x'] + layout['width']
+            case _:
+                raise ValueError(f"h_align value '{layout['h_align']}' unrecognized")
+
+        match layout['v_align']:
+            case Alignment.BEGIN:
+                y = layout['y']
+                anchor_v = 'a'
+            case Alignment.MIDDLE:
+                y = layout['y'] + (layout['height'] // 2)
+                anchor_v = 'm'
+            case Alignment.END:
+                y = layout['y'] + layout['height']
+                anchor_v = 'd'
+            case _:
+                raise ValueError(f"v_align value '{layout['v_align']}' unrecognized")
+
         d.text(
-            [layout['x'], layout['y']],
+            [x, y],
             text,
             fill=color if color else _DEFAULT_COLOR,
             font=font if font else _DEFAULT_FONT,
+            anchor=f"{anchor_h}{anchor_v}",
         )
     
     def _render_png_rectangle(self, d, layout, color, thickness):
