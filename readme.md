@@ -20,7 +20,7 @@ But the package inside is just called `skit`.
 
 ## Usage
 
-See the [examples](examples/) for basic usage.
+See the [examples](https://github.com/vtbassmatt/skit/blob/main/examples) for basic usage.
 
 ```python
 from skit import Deck
