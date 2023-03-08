@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Iterator, Self, Mapping
 import warnings
 from skit.card import Card, CardManipulation
-from skit._types import Real, Rect, Color, FreeTypeFont
+from skit._types import Real, LayoutDef, Color, FreeTypeFont
 
 
 logger = logging.getLogger(__file__)
@@ -54,19 +54,19 @@ class Deck(MutableSequence, CardManipulation):
         for card in self._cards:
             card.background(color)
     
-    def layout(self, name: str, rect: Rect):
+    def layout(self, name: str, layoutdef: LayoutDef):
         "Add a layout to every card in this deck."
         logger.debug(f"Deck.layout({name}, ...)")
         for card in self._cards:
-            card.layout(name, rect)
+            card.layout(name, layoutdef)
     
-    def layouts(self, names: Sequence[str], rects: Sequence[Rect]):
+    def layouts(self, names: Sequence[str], layoutdefs: Sequence[LayoutDef]):
         "Add multiple layouts to every card in this deck."
         logger.debug(f"Deck.layouts(sequence of layouts)")
         for card in self._cards:
-            card.layouts(names, rects)
+            card.layouts(names, layoutdefs)
 
-    def layouts_map(self, layouts: Mapping[str, Rect]):
+    def layouts_map(self, layouts: Mapping[str, LayoutDef]):
         "Add multiple layouts from a dictionary to every card in this deck."
         logger.debug(f"Deck.layouts_map(map of name->layouts)")
         for card in self._cards:
@@ -88,7 +88,7 @@ class Deck(MutableSequence, CardManipulation):
         "Draw an image on every card in this deck."
         logger.debug(f"Deck.image({image})")
         for card in self._cards:
-            card.image(layout, image, layout)
+            card.image(image, layout)
 
     def render_png(self, filename: str):
         """
