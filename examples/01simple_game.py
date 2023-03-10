@@ -18,7 +18,7 @@ typewriter16 = skit.load_font('AmericanTypewriter', 16*2)
 
 # load the layout
 with open(BASE_DIR + '/assets/01layout.json') as json_in:
-    layouts = json.load(json_in, object_hook=skit.json_layout_hook)
+    layouts = json.load(json_in, object_hook=skit.as_layoutdef)
 
 # load pieces
 pieces = []

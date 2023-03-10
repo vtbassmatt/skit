@@ -9,9 +9,10 @@ from PIL import ImageFont
 load_font = ImageFont.truetype
 
 
-def json_layout_hook(incoming_dict: dict) -> dict | Rect:
+def as_layoutdef(incoming_dict: dict) -> dict | LayoutDef:
     """
-    A helper for parsing layouts from JSON.
+    A helper for converting dicts into Rects. Useful parsing layouts from data
+    files.
 
     Pass this to the `object_hook` parameter of `json.load()` to automatically
     convert dictionaries with the correct keys  into `LayoutDefs`s.
@@ -68,5 +69,5 @@ __all__ = [
     'Alignment',
     'LayoutDef',
     'load_font',
-    'json_layout_hook',
+    'as_layoutdef',
 ]
