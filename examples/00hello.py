@@ -15,7 +15,7 @@ deck.background('white')
 
 # create a title area and set a unique title for both cards
 deck.layout(name='title', layoutdef=skit.LayoutDef(x=10, y=0, width=730, height=50))
-deck.texts(['Hello', 'World'], layout='title', color=skit.Color('red'), font=typewriter16)
+deck.texts(['Hello', 'World'], layouts='title', colors=skit.Color('red'), fonts=typewriter16)
 
 # create a copyright area and set a unique title for both cards
 deck.layout(name='copyright', layoutdef=skit.LayoutDef(x=10, y=1000, width=730, height=50))

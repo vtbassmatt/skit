@@ -1,7 +1,8 @@
 from collections.abc import MutableSequence, Sequence
+from itertools import cycle
 import logging
 from pathlib import Path
-from typing import Iterator, Self, Mapping
+from typing import Iterator, Self, Mapping, Callable, TypeVar
 import warnings
 from skit.card import Card, CardManipulation
 from skit._types import Real, LayoutDef, Color, FreeTypeFont
@@ -48,7 +49,7 @@ class Deck(MutableSequence, CardManipulation):
     #endregion
 
     #region Card manipulation
-    def background(self, color: str):
+    def background(self, color: Color):
         "Set the background color for all cards in this deck."
         logger.debug(f"Deck.background({color})")
         for card in self._cards:
@@ -84,6 +85,12 @@ class Deck(MutableSequence, CardManipulation):
         for card in self._cards:
             card.rectangle(layout, color, thickness)
 
+    def filled_rectangle(self, layout: str, color: Color):
+        "Draw a filled rectangle on every card in this deck."
+        logger.debug(f"Deck.filled_rect({layout})")
+        for card in self._cards:
+            card.filled_rectangle(layout, color)
+
     def image(self, image: Path, layout: str):
         "Draw an image on every card in this deck."
         logger.debug(f"Deck.image({image})")
@@ -109,23 +116,79 @@ class Deck(MutableSequence, CardManipulation):
     #endregion
 
     #region Card sequence manipulation
+    T = TypeVar('T')
+
+    def for_each_if(
+        self,
+        values: Sequence[T],
+        test: Callable[[T], bool],
+        do: Callable[[Card, T], None],
+    ):
+        """
+        For each element in values, test(element). If it returns true,
+        then do(corresponding_card, element). For example,
+
+        ```
+        # if there's a 'stats' key in the data, print stats in the right place
+        deck.for_each_if(
+            data,
+            lambda elem: 'stats' in elem,
+            lambda card, elem: card.text(elem['stats'], layout='stats')
+        )
+        ```
+        """
+        for index, elem in enumerate(values):
+            if test(elem):
+                do(self._cards[index], elem)
+
     def backgrounds(self, colors: Sequence[str]):
-        "Add (potentially different) backgrounds to each card in this deck."
+        """
+        Add backgrounds to each card in this deck. Arguments may be scalar
+        or sequences, varying the data per-card.
+        """
+        if not issubclass(type(colors), Sequence) or issubclass(type(colors), str):
+            colors = [colors]
         logger.debug(f"Deck.backgrounds(sequence of colors)")
-        for card, color in zip(self._cards, colors):
+        for card, color in zip(self._cards, cycle(colors)):
             card.background(color)
 
-    def texts(self, texts: Sequence[str], layout: str, font: FreeTypeFont | None = None, color: Color | None = None):
-        "Add (potentially different) text strings to each card in this deck."
+    def texts(
+            self,
+            texts: str | Sequence[str],
+            layouts: str | Sequence[str],
+            fonts: FreeTypeFont | Sequence[FreeTypeFont] | None = None,
+            colors: Color | Sequence[Color] | None = None,
+        ):
+        """
+        Add text strings to each card in this deck. Arguments may be scalar
+        or sequences, varying the data per-card.
+        """
         logger.debug(f"Deck.texts(sequence of strings)")
-        for card, text in zip(self._cards, texts):
+        args = self._make_seqs(texts=texts, layouts=layouts, fonts=fonts, colors=colors)
+        for card, text, layout, font, color in zip(self._cards, args['texts'], args['layouts'], args['fonts'], args['colors']):
             card.text(text, layout, font, color)
 
-    def images(self, images: Sequence[Path], layout: str):
-        "Draw (potentially different) external images on each card in this deck."
+    def images(
+        self,
+        images: Path | Sequence[Path],
+        layouts: str | Sequence[str],
+    ):
+        """
+        Draw external images on each card in this deck. Arguments may be scalar
+        or sequences, varying the data per-card.
+        """
         logger.debug(f"Deck.images(sequence of images)")
-        for card, image in zip(self._cards, images):
-            card.image(layout, image, layout)
+        args = self._make_seqs(images=images, layouts=layouts)
+        for card, image, layout in zip(self._cards, args['images'], args['layouts']):
+            card.image(image, layout)
+    
+    def _make_seqs(self, **kwargs):
+        args = {}
+        for key, value in kwargs.items():
+            if not issubclass(type(value), Sequence) or issubclass(type(value), str):
+                value = [value]
+            args[key] = cycle(value)
+        return args
     #endregion
 
     def __str__(self):
