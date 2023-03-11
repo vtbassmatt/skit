@@ -1,0 +1,80 @@
+# A TCG in TOML
+
+[design]
+width = 750
+height = 1050
+
+[layout.name]
+x = 50
+y = 40
+width = 650
+height = 50
+v_align = "end"
+
+[layout.art]
+x = 50
+y = 100
+width = 650
+height = 400
+v_align = "middle"
+h_align = "middle"
+
+[layout.typeline]
+x = 50
+y = 510
+width = 650
+height = 50
+v_align = "middle"
+
+[layout.textbox]
+x = 50
+y = 570
+width = 650
+height = 400
+
+[layout.text]
+x = 55
+y = 575
+width = 640
+height = 390
+v_align = "middle"
+
+[layout.stats]
+x = 575
+y = 950
+width = 100
+height = 50
+h_align = "middle"
+v_align = "middle"
+
+[layout.border]
+x = 25
+y = 25
+width = 700
+height = 1000
+
+[[cards]]
+name = "Kolgad Beasthorn"
+color = "red"
+typeline = "Dwarf Warrior"
+text = "Attacks each turn if able"
+stats = "1d4"
+
+[[cards]]
+name = "Elduin Taranath"
+color = "blue"
+typeline = "Elf Magician"
+text = "Spell-caster"
+stats = "2d6"
+
+[[cards]]
+name = "Exceed Limits"
+color = "red"
+typeline = "Spell"
+text = "Restores 3 health"
+
+[[cards]]
+name = "Wand of Waving"
+color = "blue"
+typeline = "Object"
+text = "Add 1 to magical dice rolls"
