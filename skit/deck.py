@@ -2,7 +2,7 @@ from collections.abc import MutableSequence, Sequence
 from itertools import cycle
 import logging
 from pathlib import Path
-from typing import Iterator, Self, Mapping
+from typing import Iterator, Self, Mapping, Callable, TypeVar
 import warnings
 from skit.card import Card, CardManipulation
 from skit._types import Real, LayoutDef, Color, FreeTypeFont
@@ -116,6 +116,31 @@ class Deck(MutableSequence, CardManipulation):
     #endregion
 
     #region Card sequence manipulation
+    T = TypeVar('T')
+
+    def for_each_if(
+        self,
+        values: Sequence[T],
+        test: Callable[[T], bool],
+        do: Callable[[Card, T], None],
+    ):
+        """
+        For each element in values, test(element). If it returns true,
+        then do(corresponding_card, element). For example,
+
+        ```
+        # if there's a 'stats' key in the data, print stats in the right place
+        deck.for_each_if(
+            data,
+            lambda elem: 'stats' in elem,
+            lambda card, elem: card.text(elem['stats'], layout='stats')
+        )
+        ```
+        """
+        for index, elem in enumerate(values):
+            if test(elem):
+                do(self._cards[index], elem)
+
     def backgrounds(self, colors: Sequence[str]):
         """
         Add backgrounds to each card in this deck. Arguments may be scalar
