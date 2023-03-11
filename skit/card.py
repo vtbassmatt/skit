@@ -52,6 +52,13 @@ class CardManipulation(ABC):
     ): pass
 
     @abstractmethod
+    def filled_rectangle(
+        self,
+        layout: str,
+        color: Color,
+    ): pass
+
+    @abstractmethod
     def image(
         self,
         image: Path,
@@ -130,6 +137,21 @@ class Card(CardManipulation):
                 'layout': layout,
                 'color': color,
                 'thickness': thickness,
+                'filled': False,
+            })
+        else:
+            raise KeyError(f"missing layout '{layout}'")
+
+    def filled_rectangle(self, layout: str, color: Color):
+        "Draw a filled rectangle on this card."
+        if layout in self._layouts:
+            logger.debug(f"adding rectangle for {layout}")
+            self._commands.append({
+                'op': _DrawCommand.RECTANGLE,
+                'layout': layout,
+                'color': color,
+                'thickness': 1,
+                'filled': True,
             })
         else:
             raise KeyError(f"missing layout '{layout}'")
@@ -205,7 +227,7 @@ class Card(CardManipulation):
             anchor=f"{anchor_h}{anchor_v}",
         )
     
-    def _render_png_rectangle(self, d, layout, color, thickness):
+    def _render_png_rectangle(self, d, layout, color, thickness, filled):
         logger.debug(f"rendering rectangle on {layout}")
         layout = self._layouts[layout]
         d.rectangle(
@@ -215,6 +237,7 @@ class Card(CardManipulation):
                 layout['x'] + layout['width'],
                 layout['y'] + layout['height'],
             ],
+            fill=color if filled and color else None,
             outline=color if color else _DEFAULT_COLOR,
             width=thickness if thickness else _DEFAULT_THICKNESS,
         )

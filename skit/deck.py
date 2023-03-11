@@ -84,6 +84,12 @@ class Deck(MutableSequence, CardManipulation):
         for card in self._cards:
             card.rectangle(layout, color, thickness)
 
+    def filled_rectangle(self, layout: str, color: Color):
+        "Draw a filled rectangle on every card in this deck."
+        logger.debug(f"Deck.filled_rect({layout})")
+        for card in self._cards:
+            card.filled_rectangle(layout, color)
+
     def image(self, image: Path, layout: str):
         "Draw an image on every card in this deck."
         logger.debug(f"Deck.image({image})")
