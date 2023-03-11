@@ -29,3 +29,8 @@ d = Deck(3) # make a deck of 3 cards, default size
 d.background('#cccccc') # set a gray background
 d.render_png('basic_{index}.png') # render basic_0.png, basic_1.png, and basic_2.png
 ```
+
+## Credits
+
+- Andy Meneely for the idea, and for the awesome Squib!
+- game-icons.net for icons used in the examples

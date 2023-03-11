@@ -33,6 +33,7 @@ deck.rectangle('border', 'black', 6)
 # fill in the data
 deck.texts([c['name'] for c in cards], layouts='name', colors=[skit.Color(c['color']) for c in cards], fonts=large_text)
 deck.rectangle('art', 'gray')
+deck.images([BASE_DIR + '/assets/' + c['image'] for c in cards], layouts='art')
 deck.texts([c['typeline'] for c in cards], layouts='typeline', fonts=small_text)
 deck.filled_rectangle('textbox', '#dddddd')
 deck.texts([c['text'] for c in cards], layouts='text', fonts=small_text)

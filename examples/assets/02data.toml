@@ -56,6 +56,7 @@ height = 1000
 [[cards]]
 name = "Kolgad Beasthorn"
 color = "red"
+image = "dwarf-face.png"
 typeline = "Dwarf Warrior"
 text = "Attacks each turn if able"
 stats = "1d4"
@@ -63,6 +64,7 @@ stats = "1d4"
 [[cards]]
 name = "Elduin Taranath"
 color = "blue"
+image = "woman-elf-face.png"
 typeline = "Elf Magician"
 text = "Spell-caster"
 stats = "2d6"
@@ -70,11 +72,13 @@ stats = "2d6"
 [[cards]]
 name = "Exceed Limits"
 color = "red"
+image = "bolt-spell-cast.png"
 typeline = "Spell"
 text = "Restores 3 health"
 
 [[cards]]
 name = "Wand of Waving"
 color = "blue"
+image = "lunar-wand.png"
 typeline = "Object"
 text = "Add 1 to magical dice rolls"
