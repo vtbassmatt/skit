@@ -18,6 +18,7 @@ width = 650
 height = 400
 v_align = "middle"
 h_align = "middle"
+scale = "fit" # the default, but calling it out anyhow
 
 [layout.typeline]
 x = 50

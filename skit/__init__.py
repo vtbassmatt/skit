@@ -1,6 +1,7 @@
+import warnings
 from .deck import Deck
 from .card import Card
-from ._types import Rect, Color, Alignment, LayoutDef
+from ._types import Rect, Color, Alignment, Scale, LayoutDef
 
 from PIL import ImageFont
 
@@ -17,7 +18,7 @@ def as_layoutdef(incoming_dict: dict) -> dict | LayoutDef:
     Pass this to the `object_hook` parameter of `json.load()` to automatically
     convert dictionaries with the correct keys  into `LayoutDefs`s.
     Correct keys are `x`, `y`, `width`, and `height`, plus optional
-    `h_align` and `v_align`.
+    `h_align`, `v_align`, and 'scale'.
 
     Example:
 
@@ -39,24 +40,30 @@ def as_layoutdef(incoming_dict: dict) -> dict | LayoutDef:
     #   'mybox': LayoutDef(
     #       x=0, y=0, width=100, height=25,
     #       h_align=Alignment.BEGIN, v_align=Alignment.BEGIN,
+    #       scale=Scale.FIT,
     #   )
     # }
 
     ```
     """
     match incoming_dict:
-        case { 'x': _, 'y': _, 'width': _, 'height': _, **rest } if len(rest) == 0:
-            return LayoutDef(**incoming_dict)
-        case { 'x': _, 'y': _, 'width': _, 'height': _, 'h_align': _, **rest } if len(rest) == 0:
-            incoming_dict['h_align'] = Alignment(incoming_dict['h_align'])
-            return LayoutDef(**incoming_dict)
-        case { 'x': _, 'y': _, 'width': _, 'height': _, 'v_align': _, **rest } if len(rest) == 0:
-            incoming_dict['v_align'] = Alignment(incoming_dict['v_align'])
-            return LayoutDef(**incoming_dict)
-        case { 'x': _, 'y': _, 'width': _, 'height': _, 'h_align': _, 'v_align': _, **rest } if len(rest) == 0:
-            incoming_dict['h_align'] = Alignment(incoming_dict['h_align'])
-            incoming_dict['v_align'] = Alignment(incoming_dict['v_align'])
-            return LayoutDef(**incoming_dict)
+        case { 'x': _, 'y': _, 'width': _, 'height': _, **rest }:
+            if 'h_align' in rest:
+                rest['h_align'] = Alignment(incoming_dict['h_align'])
+            if 'v_align' in rest:
+                rest['v_align'] = Alignment(incoming_dict['v_align'])
+            if 'scale' in rest:
+                rest['scale'] = Scale(incoming_dict['scale'])
+            try:
+                vals = incoming_dict.copy()
+                vals.update(rest)
+                return LayoutDef(**vals)
+            except TypeError:
+                # If there was something in the incoming data that doesn't
+                # belong in LayoutDef, we'll hit this branch. We simply return
+                # the dictionary we would have otherwise seen
+                warnings.warn(f"{incoming_dict} has keys not convertible to LayoutDef")
+                return incoming_dict
         case _:
             return incoming_dict
 
@@ -67,6 +74,7 @@ __all__ = [
     'Rect',
     'Color',
     'Alignment',
+    'Scale',
     'LayoutDef',
     'load_font',
     'as_layoutdef',
