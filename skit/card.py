@@ -1,10 +1,11 @@
 from collections.abc import Sequence
 from enum import Enum
 import logging
+import math
 from pathlib import Path
 from typing import Mapping
 from PIL import Image, ImageDraw, ImageFont
-from skit._types import Real, LayoutDef, Color, FreeTypeFont, Alignment
+from skit._types import Real, LayoutDef, Color, FreeTypeFont, Alignment, Scale
 from abc import ABC, abstractmethod
 
 
@@ -98,6 +99,7 @@ class Card(CardManipulation):
             'height': layoutdef.height,
             'h_align': layoutdef.h_align,
             'v_align': layoutdef.v_align,
+            'scale': layoutdef.scale,
         }
     
     def layouts(self, names: Sequence[str], layoutdefs: Sequence[LayoutDef]):
@@ -246,6 +248,22 @@ class Card(CardManipulation):
         logger.debug(f"rendering image at {layout}")
         layout = self._layouts[layout]
         with Image.open(image) as art:
+            # compute new image scale
+            proposed_scale = self._pick_image_size(art.width, art.height, layout['width'], layout['height'])
+            match layout['scale']:
+                case Scale.FIT:
+                    art = art.resize(proposed_scale)
+                case Scale.UP:
+                    if art.width < proposed_scale[0] or art.height < proposed_scale[1]:
+                        art = art.resize(proposed_scale)
+                case Scale.DOWN:
+                    if art.width > proposed_scale[0] or art.height > proposed_scale[1]:
+                        art = art.resize(proposed_scale)
+                case Scale.NONE:
+                    pass    # there is nothing to do
+                case _:
+                    raise ValueError(f"scale value '{layout['scale']}' unrecognized")
+
             match layout['h_align']:
                 case Alignment.BEGIN:
                     left = layout['x']
@@ -267,3 +285,20 @@ class Card(CardManipulation):
                     raise ValueError(f"v_align value '{layout['v_align']}' unrecognized")
 
             im.alpha_composite(art, (left, top))
+
+    def _pick_image_size(self, img_width, img_height, layout_width, layout_height):
+        if img_width == layout_width and img_height == layout_height:
+            return img_width, img_height
+        
+        # unpacking the logic below...
+        #   ratio_width = image.width / layout.width
+        #   ratio_height = image.height / layout.height
+        #   if either ratio is > 1, we are shrinking, so pick the larger one to make sure we fit
+        #   if both ratios are < 1, we are growing, so pick the one closer to 1 to maximally fill
+        #   either way, we're picking the largest number to use as a scale factor
+
+        scale_factor = max(img_width / layout_width, img_height / layout_height)
+        new_width = math.floor(img_width / scale_factor)
+        new_height = math.floor(img_height / scale_factor)
+        
+        return new_width, new_height
