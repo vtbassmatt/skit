@@ -6,35 +6,53 @@ from PIL.ImageFont import FreeTypeFont
 class Rect(NamedTuple):
     "A rectangle, the basic data structure used throughout Skit."
     x: Real
+    """X coordinate for start of rectangle."""
     y: Real
+    """Y coordinate for start of rectangle."""
     width: Real
+    """Width of rectangle."""
     height: Real
+    """Height of rectangle."""
 
 
 class Alignment(Enum):
     "Where to align items in a layout."
-    BEGIN = 'begin' # left or top
+    BEGIN = 'begin'
+    """Align left if horizontal or top if vertical."""
     MIDDLE = 'middle'
-    END = 'end' # right or bottom
+    """Align to the middle."""
+    END = 'end'
+    """Align right if horitzontal or bottom if vertical."""
 
 
 class Scale(Enum):
     "How to scale images within their layout."
-    FIT = 'fit'     # scale up or down to fit the layout
-    DOWN = 'down'   # only scale down, never up
-    UP = 'up'       # only scale up, never down
-    NONE = 'none'   # no scaling
+    FIT = 'fit'
+    """Scale the image up (larger) or down (smaller) to fit the layout."""
+    DOWN = 'down'
+    """Only scale the image down, never up."""
+    UP = 'up'
+    """Only scale the image up, never down."""
+    NONE = 'none'
+    """Disable scaling."""
 
 
 class LayoutDef(NamedTuple):
-    "A rectangle plus alignment information."
+    "A box for drawing into plus alignment information for the box's contents."
     x: Real
+    """X coordinate for start of layout."""
     y: Real
+    """Y coordinate for start of layout."""
     width: Real
+    """Width of layout."""
     height: Real
+    """Height of layout."""
     h_align: Alignment = Alignment.BEGIN
+    """Specify horizontal alignment."""
     v_align: Alignment = Alignment.BEGIN
+    """Specify vertical alignment."""
     scale: Scale = Scale.FIT
+    """Specify how (and if) images are scaled."""
 
 
 # color - thin wrapper on str right now, and there are only
