@@ -1,3 +1,6 @@
+"""
+.. include:: ../README.md
+"""
 import copy
 import warnings
 from .deck import Deck
