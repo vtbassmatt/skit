@@ -1,3 +1,4 @@
+import copy
 import warnings
 from .deck import Deck
 from .card import Card
@@ -7,7 +8,20 @@ from PIL import ImageFont
 
 
 # expose ImageFont.truetype() as skit.load_font()
-load_font = ImageFont.truetype
+load_font = copy.copy(ImageFont.truetype)
+load_font.__doc__ = f"""
+A rename/import of [PIL.ImageFont.truetype][truetypedocs].
+
+Required arguments are:
+- `font`: A filename or file-like object containing a TrueType font.
+If the file is not found in this filename, the loader may also search in other directories, such as the `fonts/`
+directory on Windows or `/Library/Fonts/`, `/System/Library/Fonts/` and `~/Library/Fonts/` on macOS.
+- `size`: The requested size, in pixels.
+
+See the [upstream documentation][truetypedocs] for the remaining optional parameters.
+
+[truetypedocs]: https://pillow.readthedocs.io/en/stable/reference/ImageFont.html#PIL.ImageFont.truetype
+"""
 
 
 def as_layoutdef(incoming_dict: dict) -> dict | LayoutDef:
