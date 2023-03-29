@@ -98,6 +98,15 @@ class Deck(MutableSequence, CardManipulation):
             card.render_png(filename.format_map({
                 'index': index,
             }))
+
+    def render_pdf(self, filename: str, resolution: int, single_file=True):
+        """
+        Render every card in this deck as a PDF.
+
+        If `single_file` is True, then make one big PDF. Otherwise,
+        make a series of individual PDFs.
+        """
+        pass
     #endregion
 
     #region Card sequence manipulation

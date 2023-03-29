@@ -2,8 +2,9 @@ from collections.abc import Sequence
 import logging
 from pathlib import Path
 from typing import Mapping
+from PIL import Image
 from skit._types import Real, LayoutDef, Color, FreeTypeFont, Alignment
-from skit.render import DrawCommand, PngRenderer
+from skit.render import DrawCommand, SingleImageRenderer
 from abc import ABC, abstractmethod
 
 
@@ -55,6 +56,9 @@ class CardManipulation(ABC):
 
     @abstractmethod
     def render_png(self, filename: str): pass
+
+    @abstractmethod
+    def render_pdf(self, filename: str, resolution: int, single_file: bool): pass
 
 
 class Card(CardManipulation):
@@ -163,7 +167,23 @@ class Card(CardManipulation):
         logger.debug(f"rendering {filename}")
 
         im = (
-            PngRenderer(self._layouts)
+            SingleImageRenderer(self._layouts)
             .render(self._width, self._height, self._background, self._commands)
         )
-        im.save(filename)
+        im.save(filename, format='PNG')
+
+    def render_pdf(self, filename: str, resolution: int, single_file=True):
+        """
+        Render this card as a PDF. It makes no sense to render a single
+        card to multiple files, so `single_file` is ignored. PDFs don't
+        support the alpha channel, so remove it.
+        """
+        logger.debug(f"rendering {filename}")
+
+        im = (
+            SingleImageRenderer(self._layouts)
+            .render(self._width, self._height, self._background, self._commands)
+        )
+        final = Image.new('RGB', im.size, self._background)
+        final.paste(im)
+        final.save(filename, format='PDF', resolution=resolution)
