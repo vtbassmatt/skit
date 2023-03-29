@@ -13,7 +13,10 @@ logger = logging.getLogger(__file__)
 
 
 # some defaults for fallback
-_DEFAULT_FONT = ImageFont.truetype('Helvetica', 16)
+try:
+    _DEFAULT_FONT = ImageFont.truetype('Helvetica', 16)
+except OSError:
+    _DEFAULT_FONT = ImageFont.load_default()
 _DEFAULT_COLOR = 'black'
 _DEFAULT_THICKNESS = 1
 
