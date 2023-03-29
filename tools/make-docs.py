@@ -6,7 +6,7 @@ import tomllib
 
 BASE_DIR = os.path.dirname(__file__)
 ROOT_DIR = pathlib.Path(BASE_DIR, '..')
-DOCS_DIR = pathlib.Path(ROOT_DIR, 'docs')
+DOCS_DIR = pathlib.Path(ROOT_DIR, 'docs_out')
 
 
 with open(ROOT_DIR / "pyproject.toml", 'rb') as toml_in:
