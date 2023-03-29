@@ -3,10 +3,12 @@
 name: Docs
 
 # build the documentation whenever there's a new version tag
+# or manually
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 # security: restrict permissions for CI jobs.
 permissions:
