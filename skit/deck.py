@@ -13,31 +13,12 @@ logger = logging.getLogger(__file__)
 class Deck(MutableSequence, CardManipulation):
     "A deck of one or more cards."
     def __init__(self, card_count: int = 1, width: int | None = None, height: int | None = None):
+        """Create a new deck with `card_count` cards in it."""
         opts = {}
         if width: opts['width'] = width
         if height: opts['height'] = height
         self._cards: list[Card] = [Card(**opts) for _ in range(card_count)]
     
-    #region MutableSequence
-    def __getitem__(self, index) -> Card:
-        return self._cards[index]
-    
-    def __delitem__(self, index) -> None:
-        del self._cards[index]
-    
-    def __iter__(self) -> Iterator[Card]:
-        return self._cards.__iter__()
-
-    def __len__(self) -> int:
-        return len(self._cards)
-    
-    def __setitem__(self, index, value) -> None:
-        self._cards[index] = value
-    
-    def insert(self, index, value) -> None:
-        self._cards.insert(index, value)
-    #endregion
-
     #region Container convenience
     def __add__(self, other: Self) -> Self:
         if not issubclass(type(other), Deck):
@@ -102,7 +83,11 @@ class Deck(MutableSequence, CardManipulation):
         Render every card in this deck as a PNG.
 
         You may use `{index}` as part of the filename to ensure each card gets
-        a unique name.
+        a unique name. For example,
+
+        ```python
+        deck.render_png("card_{index}.png")
+        ```
         """
         logger.debug(f"Deck.render_png({filename})")
 
@@ -125,8 +110,8 @@ class Deck(MutableSequence, CardManipulation):
         do: Callable[[Card, T], None],
     ):
         """
-        For each element in values, test(element). If it returns true,
-        then do(corresponding_card, element). For example,
+        For each element in values, call `test(element)`. If it returns `True`,
+        then call `do(corresponding_card, element)`. For example,
 
         ```
         # if there's a 'stats' key in the data, print stats in the right place
@@ -143,8 +128,8 @@ class Deck(MutableSequence, CardManipulation):
 
     def backgrounds(self, colors: Sequence[str]):
         """
-        Add backgrounds to each card in this deck. Arguments may be scalar
-        or sequences, varying the data per-card.
+        Add backgrounds to each card in this deck. `colors` may be scalar
+        or a sequence, varying the background per-card.
         """
         if not issubclass(type(colors), Sequence) or issubclass(type(colors), str):
             colors = [colors]
@@ -189,6 +174,30 @@ class Deck(MutableSequence, CardManipulation):
                 value = [value]
             args[key] = cycle(value)
         return args
+    #endregion
+
+    #region MutableSequence
+    def __getitem__(self, index) -> Card:
+        return self._cards[index]
+    
+    def __delitem__(self, index) -> None:
+        del self._cards[index]
+    
+    def __iter__(self) -> Iterator[Card]:
+        return self._cards.__iter__()
+
+    def __len__(self) -> int:
+        return len(self._cards)
+    
+    def __setitem__(self, index, value: Card) -> None:
+        assert issubclass(type(value), Card)
+        
+        self._cards[index] = value
+    
+    def insert(self, index, value: Card) -> None:
+        assert issubclass(type(value), Card)
+
+        self._cards.insert(index, value)
     #endregion
 
     def __str__(self):

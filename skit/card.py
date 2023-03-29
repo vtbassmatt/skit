@@ -73,6 +73,7 @@ class CardManipulation(ABC):
 class Card(CardManipulation):
     "A single card."
     def __init__(self, width: int = 750, height: int = 1050):
+        """Create a new card of a certain `width` and `height`."""
         self._width = width
         self._height = height
         self._layouts = {}
