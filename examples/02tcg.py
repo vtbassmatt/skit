@@ -58,3 +58,5 @@ deck.for_each_if(
 
 # create individual PNGs for cards
 deck.render_png('tcg_{index}.png')
+# also create a PDF
+deck.render_pdf('tcg.pdf', resolution=300)
