@@ -109,7 +109,7 @@ class Deck(MutableSequence, CardManipulation):
         a unique name. For example,
 
         ```python
-        deck.render_pdf("card_{index}.pdf")
+        deck.render_pdf("card_{index}.pdf", single_file=False)
         ```
         """
         logger.debug(f"Deck.render_pdf({filename})")
