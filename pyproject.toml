@@ -4,7 +4,7 @@ version = "0.1.6"
 description = "A tool for prototyping card games"
 authors = ["Matt Cooper <vtbassmatt@gmail.com>"]
 license = "MIT"
-readme = "readme.md"
+readme = "README.md"
 homepage = "https://github.com/vtbassmatt/skit"
 repository = "https://github.com/vtbassmatt/skit.git"
 packages = [{ include = "skit" }]
