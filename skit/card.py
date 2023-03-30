@@ -180,10 +180,16 @@ class Card(CardManipulation):
         """
         logger.debug(f"rendering {filename}")
 
+        im = self._get_rgb_image_for_pdf(resolution)
+        im.save(filename, format='PDF', resolution=resolution)
+
+    def _get_rgb_image_for_pdf(self, resolution: int):
+        logging.debug(f"rendering RGB image")
+
         im = (
             SingleImageRenderer(self._layouts)
             .render(self._width, self._height, self._background, self._commands)
         )
         final = Image.new('RGB', im.size, self._background)
         final.paste(im)
-        final.save(filename, format='PDF', resolution=resolution)
+        return final

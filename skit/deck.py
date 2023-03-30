@@ -104,9 +104,45 @@ class Deck(MutableSequence, CardManipulation):
         Render every card in this deck as a PDF.
 
         If `single_file` is True, then make one big PDF. Otherwise,
-        make a series of individual PDFs.
+        make a series of individual PDFs. If you make individual PDFs,
+        you may use `{index}` as part of the filename to ensure each card gets
+        a unique name. For example,
+
+        ```python
+        deck.render_pdf("card_{index}.pdf")
+        ```
         """
-        pass
+        logger.debug(f"Deck.render_pdf({filename})")
+
+        if single_file:
+            self._render_single_pdf(filename, resolution)
+        else:
+            self._render_multiple_pdf(filename, resolution)
+
+    def _render_single_pdf(self, filename: str, resolution: int):
+        pages = []
+        for card in self._cards:
+            pages.append(card._get_rgb_image_for_pdf(resolution))
+        
+        first = pages.pop(0)
+        first.save(
+            filename,
+            format='PDF',
+            resolution=resolution,
+            save_all=True,
+            append_images=pages,
+        )
+
+    def _render_multiple_pdf(self, filename: str, resolution: int):
+        if '{index}' not in filename:
+            warnings.warn("'{index}' isn't in the filename, so images may overwrite one another")
+
+        for index, card in enumerate(self._cards):
+            card.render_pdf(
+                filename.format_map({'index': index}),  
+                resolution=resolution,
+                single_file=True,
+            )
     #endregion
 
     #region Card sequence manipulation
