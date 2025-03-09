@@ -1,6 +1,6 @@
 [project]
 name = "skit-game"
-version = "0.1.6"
+version = "0.1.7"
 description = "A tool for prototyping card games"
 authors = [
     { name = "Matt Cooper", email = "vtbassmatt@gmail.com" }
