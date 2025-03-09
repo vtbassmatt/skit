@@ -34,7 +34,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Build docs
-      - run: uv run python tools/make-docs.py
+        run: uv run python tools/make-docs.py
 
       - name: Upload docs artifact
         uses: actions/upload-pages-artifact@v1
