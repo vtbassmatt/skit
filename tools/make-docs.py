@@ -11,7 +11,7 @@ DOCS_DIR = pathlib.Path(ROOT_DIR, 'docs_out')
 
 with open(ROOT_DIR / "pyproject.toml", 'rb') as toml_in:
     project_data = tomllib.load(toml_in)
-version = project_data['tool']['poetry']['version']
+version = project_data['project']['version']
 
 pdoc.render.configure(
     footer_text = f'Skit {version}',
